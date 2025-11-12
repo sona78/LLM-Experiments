@@ -230,8 +230,12 @@ async function fetchGmailDataAndSaveToCSV() {
 
     let csvContent = 'subject,body\n';
     for (const { subject, body } of result) {
-        const csvSubject = '"' + subject.replace(/"/g, '""') + '"';
-        const csvBody = '"' + body.replace(/"/g, '""').replace(/\n/g, ' ').replace(/\r/g, '') + '"';
+        if (subject.length == 0 && body.length == 0){
+            continue
+        }
+
+        const csvSubject = '"' + cleanData(subject) + '"';
+        const csvBody = '"' + cleanData(body) + '"';
         csvContent += `${csvSubject},${csvBody}\n`;
     }
     
@@ -243,6 +247,15 @@ async function fetchGmailDataAndSaveToCSV() {
         throw fileErr;
     }
     return result;
+}
+
+function cleanData(text) {
+    return text
+        .split(/\s+/)
+        .filter(token => /[a-zA-Z0-9]/.test(token) && !token.includes("http"))
+        .join(" ")
+        .replace(/"/g, '""')
+        .replace(/[\n\r]/g, ' ');
 }
 
 fetchGmailDataAndSaveToCSV()
